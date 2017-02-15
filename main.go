@@ -189,7 +189,7 @@ func Jiajia() {
 	_, rc := rrredis.GetRedisClient("10.19.147.75:6379")
 	for {
 		select {
-		case <-time.After(3600 * time.Second):
+		case <-time.After(36 * time.Second):
 			uri := "http://bbs.ncar.cc/thread-28825-1-1.html"
 			s, err := spider.CreateSpiderFromUrl(uri)
 			if err != nil {
@@ -223,10 +223,11 @@ func Jiajia() {
 			if err := rc.HMSet("MEIJU:UPDATE:CACHE", map[string]string{sig: "1"}); err != nil {
 				logs.Error(err)
 			}
-			jiajia := wxbot.Cm.GetContactByPinyin("jiajiashengjia")
-			if jiajia != nil {
-				wxbot.SendText(string(title), wxbot.Bot.UserName, jiajia.UserName)
-			}
+			wxbot.SendText(string(title) + "\n" + uri , wxbot.Bot.UserName, wxbot.Bot.UserName)
+			//jiajia := wxbot.Cm.GetContactByPinyin("jiajiashengjia")
+			//if jiajia != nil {
+			//      wxbot.SendText(string(title) + "<br/>" + uri , wxbot.Bot.UserName, jiajia.UserName)
+			//}
 		}
 	}
 }

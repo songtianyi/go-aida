@@ -114,9 +114,12 @@ func delGroupText(msg map[string]interface{}) {
 		targetUserName = ToUserName
 	}else {
 		// from somebody else
-		who = strings.Split(content, ":")[0]
+		ss := strings.Split(content, ":")
+		who = ss[0]
+		content = strings.TrimPrefix(ss[1], "<br/>")
 		logs.Debug("from", who)
 		targetUserName = FromUserName
+		return
 	}
 
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
@@ -128,7 +131,6 @@ func delGroupText(msg map[string]interface{}) {
 		return
 	}
 
-	logs.Debug("111")
 	uri := "http://www.gifmiao.com/search/" + url.QueryEscape(content) + "/3"
 	s, err := spider.CreateSpiderFromUrl(uri)
 	if err != nil {
@@ -155,7 +157,7 @@ func delGroupText(msg map[string]interface{}) {
 		logs.Error(err)
 		return
 	}
-	logs.Debug("112")
+	logs.Debug("113")
 	logs.Debug("try send")
 	wxbot.SendEmotion("/data/gif/" + filename, wxbot.Bot.UserName, targetUserName)
 }

@@ -1,18 +1,23 @@
 package main
 
 import (
-	"github.com/songtianyi/wechat-go"
+	"golang.org/x/text/encoding/simplifiedchinese"
+	"golang.org/x/text/transform"
+	"bytes"
+	"crypto/md5"
+	"encoding/hex"
+	"fmt"
+	"github.com/songtianyi/laosj/spider"
 	"github.com/songtianyi/rrframework/connector/redis"
 	"github.com/songtianyi/rrframework/logs"
 	"github.com/songtianyi/rrframework/storage"
-	"github.com/songtianyi/laosj/spider"
-	"time"
-	"strings"
-	"fmt"
-	"math/rand"
-	"net/url"
-	"net/http"
+	"github.com/songtianyi/wechat-go"
 	"io/ioutil"
+	"math/rand"
+	"net/http"
+	"net/url"
+	"strings"
+	"time"
 )
 
 func delText(msg map[string]interface{}) {
@@ -80,10 +85,15 @@ func delText(msg map[string]interface{}) {
 		return
 	}
 	srcs, _ := s.GetAttr("div.wrap>div#main>ul#waterfall>li.item>div.img_block>a>img.gifImg", "xgif")
+	if len(srcs) < 1 {
+		logs.Error("no result for", content)
+		return
+	}
 	gif := srcs[r.Intn(len(srcs))]
 	resp, err := http.Get(gif)
 	if err != nil {
 		wxbot.SendText(err.Error(), wxbot.Bot.UserName, FromUserName)
+		return
 	}
 	defer resp.Body.Close()
 	body, _ := ioutil.ReadAll(resp.Body)
@@ -93,7 +103,12 @@ func delText(msg map[string]interface{}) {
 		logs.Error(err)
 		return
 	}
-	wxbot.SendEmotion("/data/gif/" + filename, wxbot.Bot.UserName, FromUserName)
+
+	target := FromUserName
+	if wxbot.Bot.UserName == FromUserName {
+		target = ToUserName
+	}
+	wxbot.SendEmotion("/data/gif/"+filename, wxbot.Bot.UserName, target)
 }
 
 func delGroupText(msg map[string]interface{}) {
@@ -112,7 +127,7 @@ func delGroupText(msg map[string]interface{}) {
 	if FromUserName == wxbot.Bot.UserName {
 		// from myself
 		targetUserName = ToUserName
-	}else {
+	} else {
 		// from somebody else
 		ss := strings.Split(content, ":")
 		who = ss[0]
@@ -126,7 +141,7 @@ func delGroupText(msg map[string]interface{}) {
 	contact := wxbot.Cm.GetContactByUserName(targetUserName)
 	if contact != nil {
 		logs.Debug(contact)
-	}else{
+	} else {
 		logs.Error("no this contact", targetUserName)
 		return
 	}
@@ -139,7 +154,7 @@ func delGroupText(msg map[string]interface{}) {
 	}
 	srcs, _ := s.GetAttr("div.wrap>div#main>ul#waterfall>li.item>div.img_block>a>img.gifImg", "xgif")
 	if len(srcs) < 1 {
-		logs.Debug("112")
+		logs.Error("no result for", content)
 		return
 	}
 	gif := srcs[r.Intn(len(srcs))]
@@ -157,19 +172,72 @@ func delGroupText(msg map[string]interface{}) {
 		logs.Error(err)
 		return
 	}
-	logs.Debug("113")
-	logs.Debug("try send")
-	wxbot.SendEmotion("/data/gif/" + filename, wxbot.Bot.UserName, targetUserName)
+	wxbot.SendEmotion("/data/gif/"+filename, wxbot.Bot.UserName, targetUserName)
 }
 
 func GetRandomStringFromNum(length int) string {
-        bytes := []byte("0123456789")
-        result := []byte{}
-        r := rand.New(rand.NewSource(time.Now().UnixNano()))
-        for i := 0; i < length; i++ {
-                result = append(result, bytes[r.Intn(len(bytes))])
-        }
-        return string(result)
+	bytes := []byte("0123456789")
+	result := []byte{}
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	for i := 0; i < length; i++ {
+		result = append(result, bytes[r.Intn(len(bytes))])
+	}
+	return string(result)
+}
+
+func Jiajia() {
+	_, rc := rrredis.GetRedisClient("10.19.147.75:6379")
+	for {
+		select {
+		case <-time.After(3600 * time.Second):
+			uri := "http://bbs.ncar.cc/thread-28825-1-1.html"
+			s, err := spider.CreateSpiderFromUrl(uri)
+			if err != nil {
+				logs.Error(err)
+				continue
+			}
+			srcs, _ := s.GetText("div.wp>div.wp.cl>div.pl.bm>table>tbody>tr>td.plc.ptm.pbn.vwthd>h1.ts>span")
+			if len(srcs) < 1 {
+				continue
+			}
+			logs.Debug(srcs)
+
+			title, err := GbkToUtf8([]byte(srcs[0]))
+			if err != nil {
+				logs.Error(err)
+				continue
+			}
+			h := md5.New()
+			h.Write(title)
+			sum := h.Sum(nil)
+			sig := hex.EncodeToString(sum)
+
+			exist, err := rc.HMExists("MEIJU:UPDATE:CACHE", sig)
+			if err != nil {
+				logs.Error(err)
+				continue
+			}
+			if exist {
+				continue
+			}
+			if err := rc.HMSet("MEIJU:UPDATE:CACHE", map[string]string{sig: "1"}); err != nil {
+				logs.Error(err)
+			}
+			jiajia := wxbot.Cm.GetContactByPinyin("jiajiashengjia")
+			if jiajia != nil {
+				wxbot.SendText(string(title), wxbot.Bot.UserName, jiajia.UserName)
+			}
+		}
+	}
+}
+
+func GbkToUtf8(s []byte) ([]byte, error) {
+    reader := transform.NewReader(bytes.NewReader(s), simplifiedchinese.GBK.NewDecoder())
+    d, e := ioutil.ReadAll(reader)
+    if e != nil {
+        return nil, e
+    }
+    return d, nil
 }
 
 func main() {
@@ -178,6 +246,7 @@ func main() {
 	wxbot.HandlerRegister.Add(1, wxbot.Handler(delGroupText))
 	// login
 	wxbot.AutoLogin()
+	go Jiajia()
 	// enter message loop
 	wxbot.Run()
 }

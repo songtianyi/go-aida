@@ -1,26 +1,28 @@
 package main
 
 import (
-	"golang.org/x/text/encoding/simplifiedchinese"
-	"golang.org/x/text/transform"
 	"bytes"
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
 	"github.com/songtianyi/laosj/spider"
+	"github.com/songtianyi/rrframework/config"
 	"github.com/songtianyi/rrframework/connector/redis"
 	"github.com/songtianyi/rrframework/logs"
 	"github.com/songtianyi/rrframework/storage"
 	"github.com/songtianyi/wechat-go"
+	"golang.org/x/text/encoding/simplifiedchinese"
+	"golang.org/x/text/transform"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 )
 
-func delText(msg map[string]interface{}) {
+func dealText(msg map[string]interface{}) {
 	content := msg["Content"].(string)
 	fmt.Println(content)
 	FromUserName := msg["FromUserName"].(string)
@@ -107,11 +109,11 @@ func delText(msg map[string]interface{}) {
 	target := FromUserName
 	if wxbot.Bot.UserName == FromUserName {
 		target = ToUserName
+		wxbot.SendEmotion("/data/gif/"+filename, wxbot.Bot.UserName, target)
 	}
-	wxbot.SendEmotion("/data/gif/"+filename, wxbot.Bot.UserName, target)
 }
 
-func delGroupText(msg map[string]interface{}) {
+func dealGroupText(msg map[string]interface{}) {
 	logs.Debug(msg)
 	content := msg["Content"].(string)
 	fmt.Println(content)
@@ -190,64 +192,137 @@ func Jiajia() {
 	for {
 		select {
 		case <-time.After(36 * time.Second):
-			uri := "http://bbs.ncar.cc/thread-28825-1-1.html"
-			s, err := spider.CreateSpiderFromUrl(uri)
-			if err != nil {
-				logs.Error(err)
-				continue
+			uris := []string{
+				"http://bbs.ncar.cc/thread-28789-1-1.html",
+				"http://bbs.ncar.cc/thread-29069-1-1.html",
+				"http://bbs.ncar.cc/thread-28724-1-1.html",
 			}
-			srcs, _ := s.GetText("div.wp>div.wp.cl>div.pl.bm>table>tbody>tr>td.plc.ptm.pbn.vwthd>h1.ts>span")
-			if len(srcs) < 1 {
-				continue
-			}
-			logs.Debug(srcs)
+			for _, uri := range uris {
+				s, err := spider.CreateSpiderFromUrl(uri)
+				if err != nil {
+					logs.Error(err)
+					continue
+				}
+				srcs, _ := s.GetText("div.wp>div.wp.cl>div.pl.bm>table>tbody>tr>td.plc.ptm.pbn.vwthd>h1.ts>span")
+				if len(srcs) < 1 {
+					continue
+				}
 
-			title, err := GbkToUtf8([]byte(srcs[0]))
-			if err != nil {
-				logs.Error(err)
-				continue
-			}
-			h := md5.New()
-			h.Write(title)
-			sum := h.Sum(nil)
-			sig := hex.EncodeToString(sum)
+				title, err := GbkToUtf8([]byte(srcs[0]))
+				if err != nil {
+					logs.Error(err)
+					continue
+				}
+				h := md5.New()
+				h.Write(title)
+				sum := h.Sum(nil)
+				sig := hex.EncodeToString(sum)
 
-			exist, err := rc.HMExists("MEIJU:UPDATE:CACHE", sig)
-			if err != nil {
-				logs.Error(err)
-				continue
+				exist, err := rc.HMExists("MEIJU:UPDATE:CACHE", sig)
+				if err != nil {
+					logs.Error(err)
+					continue
+				}
+				if exist {
+					continue
+				}
+				if err := rc.HMSet("MEIJU:UPDATE:CACHE", map[string]string{sig: "1"}); err != nil {
+					logs.Error(err)
+				}
+				wxbot.SendText(string(title)+"\n"+uri, wxbot.Bot.UserName, wxbot.Bot.UserName)
+				//jiajia := wxbot.Cm.GetContactByQuanPin("jiajiashengjia")
+				//if jiajia != nil {
+				//      wxbot.SendText(string(title) + "<br/>" + uri , wxbot.Bot.UserName, jiajia.UserName)
+				//}
 			}
-			if exist {
-				continue
-			}
-			if err := rc.HMSet("MEIJU:UPDATE:CACHE", map[string]string{sig: "1"}); err != nil {
-				logs.Error(err)
-			}
-			wxbot.SendText(string(title) + "\n" + uri , wxbot.Bot.UserName, wxbot.Bot.UserName)
-			//jiajia := wxbot.Cm.GetContactByPinyin("jiajiashengjia")
-			//if jiajia != nil {
-			//      wxbot.SendText(string(title) + "<br/>" + uri , wxbot.Bot.UserName, jiajia.UserName)
-			//}
 		}
 	}
 }
 
+func dealImg(msg map[string]interface{}) {
+	logs.Debug(msg)
+	msgId := msg["MsgId"].(string)
+	content := msg["Content"].(string)
+	FromUserName := msg["FromUserName"].(string)
+	ToUserName := msg["ToUserName"].(string)
+
+	who := ""
+	targetUserName := ""
+	if FromUserName == wxbot.Bot.UserName {
+		// from myself
+		targetUserName = ToUserName
+	} else {
+		// from somebody else
+		ss := strings.Split(content, ":")
+		who = ss[0]
+		content = strings.TrimPrefix(ss[1], "<br/>")
+		logs.Debug("from", who)
+		targetUserName = FromUserName
+	}
+	contact := wxbot.Cm.GetContactByUserName(targetUserName)
+	if contact != nil {
+		logs.Debug(contact)
+	} else {
+		logs.Error("no this contact", targetUserName)
+		return
+	}
+	b, err := wxbot.GetImg(msgId)
+	if err != nil {
+		logs.Error(err)
+		return
+	}
+	res, err := Detect(msgId+".jpg", b)
+	if err != nil {
+		logs.Error(err)
+		return
+	}
+	logs.Debug(string(res))
+	jc, _ := rrconfig.LoadJsonConfigFromBytes(res)
+	ages, err := jc.GetSliceInt("faces.attributes.age.value")
+	if err != nil {
+		logs.Error(err)
+		return
+	}
+	genders, _ := jc.GetSliceString("faces.attributes.gender.value")
+	str := ""
+	for i, v := range ages {
+		str += genders[i] + "," + strconv.Itoa(v) + "\n"
+	}
+	wxbot.SendText(str, wxbot.Bot.UserName, targetUserName)
+}
+
+func getMaleUser() {
+	user := wxbot.Cm.GetContactByQuanPin("jianshujiaojingdadui")
+	if user == nil {
+		logs.Error("no this user", "jianshujiaojingdadui")
+		return
+	}
+	cm, err := wxbot.CreateContactManagerFromContact(user)
+	if err != nil {
+		logs.Debug(err)
+		return
+	}
+	logs.Debug(cm)
+}
+
 func GbkToUtf8(s []byte) ([]byte, error) {
-    reader := transform.NewReader(bytes.NewReader(s), simplifiedchinese.GBK.NewDecoder())
-    d, e := ioutil.ReadAll(reader)
-    if e != nil {
-        return nil, e
-    }
-    return d, nil
+	reader := transform.NewReader(bytes.NewReader(s), simplifiedchinese.GBK.NewDecoder())
+	d, e := ioutil.ReadAll(reader)
+	if e != nil {
+		return nil, e
+	}
+	return d, nil
 }
 
 func main() {
 	// add text message handler
-	wxbot.HandlerRegister.Add(1, wxbot.Handler(delText))
-	wxbot.HandlerRegister.Add(1, wxbot.Handler(delGroupText))
+	wxbot.HandlerRegister.Add(1, wxbot.Handler(dealText))
+	wxbot.HandlerRegister.Add(1, wxbot.Handler(dealGroupText))
+	wxbot.HandlerRegister.Add(3, wxbot.Handler(dealImg))
 	// login
 	wxbot.AutoLogin()
 	go Jiajia()
+	go getMaleUser()
 	// enter message loop
 	wxbot.Run()
 }

@@ -11,6 +11,7 @@ import (
 	"github.com/songtianyi/rrframework/logs"
 	"github.com/songtianyi/rrframework/storage"
 	"github.com/songtianyi/wechat-go"
+	"github.com/songtianyi/wechat-go/wxweb"
 	"golang.org/x/text/encoding/simplifiedchinese"
 	"golang.org/x/text/transform"
 	"io/ioutil"
@@ -292,17 +293,45 @@ func dealImg(msg map[string]interface{}) {
 }
 
 func getMaleUser() {
-	user := wxbot.Cm.GetContactByQuanPin("jianshujiaojingdadui")
-	if user == nil {
-		logs.Error("no this user", "jianshujiaojingdadui")
-		return
+	gcs := wxbot.Cm.GetGroupContact()
+	//ls := rrstorage.CreateLocalDiskStorage("/data/head/")
+	for _, gc := range gcs {
+		mm, err := wxbot.CreateMemberManagerFromGroupContact(gc)
+		if err != nil {
+			logs.Debug(err)
+			continue
+		}
+		_ = mm.Update()
+		//uris := mm.GetHeadImgUrlByGender(2)
+		//for _, v := range uris {
+		//	b, err := wxweb.WebWxGetIconByHeadImgUrl(wxbot.WxWebDefaultCommon, wxbot.WxWebXcg, wxbot.Cookies, v)
+		//	if err != nil {
+		//		logs.Debug(err)
+		//		continue
+		//	}
+		//	filename := "head-" + GetRandomStringFromNum(5) + ".jpg"
+		//	if err := ls.Save(b, filename); err != nil {
+		//		logs.Error(err)
+		//		continue
+		//	}
+		//	wxbot.SendImg("/data/head/" + filename, wxbot.Bot.UserName, wxbot.Bot.UserName)
+		//}
+		conts := mm.GetContactsByGender(2)
+		for _, v := range conts {
+			vu := make([]*wxweb.VerifyUser, 0)
+			vu = append(vu, &wxweb.VerifyUser{
+				Value: v.UserName,
+				VerifyUserTicket: "",
+			})
+			b2, err := wxweb.WebWxVerifyUser(wxbot.WxWebDefaultCommon, wxbot.WxWebXcg, wxbot.Cookies, mm.Group.NickName + " "+ wxbot.Bot.NickName, vu)
+			if err != nil {
+				logs.Error(err)
+				continue
+			}
+			logs.Debug(string(b2))
+			time.Sleep(3*time.Second)
+		}
 	}
-	cm, err := wxbot.CreateContactManagerFromContact(user)
-	if err != nil {
-		logs.Debug(err)
-		return
-	}
-	logs.Debug(cm)
 }
 
 func GbkToUtf8(s []byte) ([]byte, error) {

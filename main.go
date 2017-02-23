@@ -351,7 +351,7 @@ func main() {
 	// login
 	wxbot.AutoLogin()
 	go Jiajia()
-	go getMaleUser()
+	//go getMaleUser()
 	// enter message loop
 	wxbot.Run()
 }

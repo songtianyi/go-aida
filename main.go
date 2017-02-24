@@ -320,16 +320,16 @@ func getMaleUser() {
 		for _, v := range conts {
 			vu := make([]*wxweb.VerifyUser, 0)
 			vu = append(vu, &wxweb.VerifyUser{
-				Value: v.UserName,
+				Value:            v.UserName,
 				VerifyUserTicket: "",
 			})
-			b2, err := wxweb.WebWxVerifyUser(wxbot.WxWebDefaultCommon, wxbot.WxWebXcg, wxbot.Cookies, mm.Group.NickName + " "+ wxbot.Bot.NickName, vu)
+			b2, err := wxweb.WebWxVerifyUser(wxbot.WxWebDefaultCommon, wxbot.WxWebXcg, wxbot.Cookies, mm.Group.NickName+" "+wxbot.Bot.NickName, vu)
 			if err != nil {
 				logs.Error(err)
 				continue
 			}
 			logs.Debug(string(b2))
-			time.Sleep(3*time.Second)
+			time.Sleep(3 * time.Second)
 		}
 	}
 }

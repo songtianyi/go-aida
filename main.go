@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/md5"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"github.com/songtianyi/laosj/spider"
 	"github.com/songtianyi/rrframework/config"
@@ -22,6 +23,13 @@ import (
 	"strings"
 	"time"
 )
+
+type Ephemeral struct {
+	TaskId  int
+	Source  string
+	Result  string
+	ImageId string
+}
 
 func dealText(msg map[string]interface{}) {
 	content := msg["Content"].(string)
@@ -54,28 +62,37 @@ func dealText(msg map[string]interface{}) {
 		}
 		fmt.Println(resn)
 	}
-	var paths = []string{
-		"/data/sexx/haixiuzu/p10165173.jpg",
-		"/data/sexx/haixiuzu/p10165173.jpg",
-		"/data/sexx/haixiuzu/p67467920.jpg",
-		"/data/sexx/haixiuzu/p67548323.jpg",
-		"/data/sexx/haixiuzu/p67616723.jpg",
-		"/data/sexx/haixiuzu/p67058029.jpg",
-		"/data/sexx/haixiuzu/p67511086.jpg",
-		"/data/sexx/haixiuzu/p67555235.jpg",
-		"/data/sexx/haixiuzu/p67616725.jpg",
-		"/data/sexx/haixiuzu/p67069563.jpg",
-		"/data/sexx/haixiuzu/p67533993.jpg",
-		"/data/sexx/haixiuzu/p67616714.jpg",
-		"/data/sexx/haixiuzu/p67616732.jpg",
-	}
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	if strings.Contains(strings.ToLower(content), "fache") {
 		target := FromUserName
 		if wxbot.Bot.UserName == FromUserName {
 			target = ToUserName
 		}
-		wxbot.SendImg(paths[r.Intn(len(paths))], wxbot.Bot.UserName, target)
+		err, rc := rrredis.GetRedisClient("10.19.147.75:6379")
+		if err != nil {
+			wxbot.SendText(err.Error(), wxbot.Bot.UserName, FromUserName)
+			return
+		}
+		key := "TASK:PCITAGGING:" + strconv.Itoa(14)
+		for count := 1; count <= 3; count++ {
+			jsonStr, err := rc.LPop(key)
+			if err != nil {
+				wxbot.SendText(err.Error(), wxbot.Bot.UserName, FromUserName)
+				return
+			}
+			ep := new(Ephemeral)
+			if err := json.Unmarshal([]byte(jsonStr), ep); err != nil {
+				wxbot.SendText(err.Error(), wxbot.Bot.UserName, FromUserName)
+				return
+			}
+
+			// push back
+			if _, err := rc.RPush(key, []byte(jsonStr)); err != nil {
+				wxbot.SendText(err.Error(), wxbot.Bot.UserName, FromUserName)
+				return
+			}
+			wxbot.SendImg("/data/sexx/haixiuzu/"+ep.ImageId, wxbot.Bot.UserName, target)
+		}
+		return
 	}
 	if strings.Contains(FromUserName, "@@") || strings.Contains(ToUserName, "@@") {
 		// ignore group message
@@ -92,6 +109,7 @@ func dealText(msg map[string]interface{}) {
 		logs.Error("no result for", content)
 		return
 	}
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	gif := srcs[r.Intn(len(srcs))]
 	resp, err := http.Get(gif)
 	if err != nil {
@@ -123,6 +141,9 @@ func dealGroupText(msg map[string]interface{}) {
 	logs.Debug("from", FromUserName, "to", ToUserName)
 	if !strings.Contains(FromUserName, "@@") && !strings.Contains(ToUserName, "@@") {
 		// ignore none group message
+		return
+	}
+	if strings.Contains(strings.ToLower(content), "fache") {
 		return
 	}
 	who := ""

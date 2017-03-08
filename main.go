@@ -150,16 +150,16 @@ func dealGroupText(msg map[string]interface{}) {
 	targetUserName := ""
 	if FromUserName == wxbot.Bot.UserName {
 		// from myself
+		who = wxbot.Bot.UserName
 		targetUserName = ToUserName
 	} else {
 		// from somebody else
 		ss := strings.Split(content, ":")
 		who = ss[0]
 		content = strings.TrimPrefix(ss[1], "<br/>")
-		logs.Debug("from", who)
 		targetUserName = FromUserName
-		return
 	}
+	logs.Debug("from", who)
 
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	contact := wxbot.Cm.GetContactByUserName(targetUserName)
@@ -167,6 +167,16 @@ func dealGroupText(msg map[string]interface{}) {
 		logs.Debug(contact)
 	} else {
 		logs.Error("no this contact", targetUserName)
+		return
+	}
+	mm, err := wxbot.CreateMemberManagerFromGroupContact(contact)
+	if err != nil {
+		logs.Debug(err)
+		return
+	}
+	_ = mm.Update()
+	member := mm.GetContactByUserName(who)
+	if member == nil || (member.PYQuanPin != "caiyunxiaoyi" && member.PYQuanPin != "songtianyi") {
 		return
 	}
 
@@ -276,9 +286,11 @@ func dealImg(msg map[string]interface{}) {
 	} else {
 		// from somebody else
 		ss := strings.Split(content, ":")
-		who = ss[0]
-		content = strings.TrimPrefix(ss[1], "<br/>")
-		logs.Debug("from", who)
+		if len(ss) > 1 {
+			who = ss[0]
+			content = strings.TrimPrefix(ss[1], "<br/>")
+			logs.Debug("from", who)
+		}
 		targetUserName = FromUserName
 	}
 	contact := wxbot.Cm.GetContactByUserName(targetUserName)

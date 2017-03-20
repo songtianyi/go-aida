@@ -79,6 +79,10 @@
 	 </div>
   </header>
 
+      <div class="">
+	  <img src="{{.qrcode}}">
+	  </div>
+
 	 <div class="description">
 	 功能列表
 	  <ul>

@@ -19,9 +19,12 @@ func main() {
 		for {
 			select {
 			case <-session.RefreshFlag:
+				old := session
 				session, err = wxweb.CreateSession(nil, wxweb.TERMINAL_MODE)
 				if err != nil {
 					logs.Error(err)
+				} else {
+					old.Close()
 				}
 			}
 		}

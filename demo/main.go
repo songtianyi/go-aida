@@ -18,6 +18,12 @@ func main() {
 	faceplusplus.Register(session)
 	replier.Register(session)
 
+	session.HandlerRegister.DisableByName("text_repiler")
+
+	if err := session.HandlerRegister.DisableByType(wxweb.MSG_TEXT); err != nil {
+		logs.Error(err)
+	}
+
 	// watch refresh flag
 	go func() {
 		for {

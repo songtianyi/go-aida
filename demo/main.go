@@ -3,7 +3,9 @@ package main
 import (
 	"github.com/songtianyi/rrframework/logs"
 	"github.com/songtianyi/wechat-go/plugins/wxweb/faceplusplus"
+	"github.com/songtianyi/wechat-go/plugins/wxweb/gifer"
 	"github.com/songtianyi/wechat-go/plugins/wxweb/replier"
+	"github.com/songtianyi/wechat-go/plugins/wxweb/switcher"
 	"github.com/songtianyi/wechat-go/wxweb"
 )
 
@@ -14,15 +16,20 @@ func main() {
 		logs.Error(err)
 		return
 	}
-	// add plugins for this session
+	// load plugins for this session
 	faceplusplus.Register(session)
 	replier.Register(session)
+	switcher.Register(session)
+	gifer.Register(session)
 
-	session.HandlerRegister.DisableByName("text_repiler")
+	// enable plugin
+	session.HandlerRegister.EnableByName("switcher")
+	session.HandlerRegister.EnableByName("faceplusplus")
 
-	if err := session.HandlerRegister.DisableByType(wxweb.MSG_TEXT); err != nil {
-		logs.Error(err)
-	}
+	// disable by type example
+	//if err := session.HandlerRegister.EnableByType(wxweb.MSG_TEXT); err != nil {
+	//	logs.Error(err)
+	//}
 
 	// watch refresh flag
 	go func() {

@@ -6,10 +6,13 @@ import (
 	"github.com/songtianyi/wechat-go/plugins/wxweb/demo"
 	"github.com/songtianyi/wechat-go/plugins/wxweb/faceplusplus"
 	"github.com/songtianyi/wechat-go/plugins/wxweb/gifer"
+	"github.com/songtianyi/wechat-go/plugins/wxweb/joker"
 	"github.com/songtianyi/wechat-go/plugins/wxweb/laosj"
 	"github.com/songtianyi/wechat-go/plugins/wxweb/replier"
+	"github.com/songtianyi/wechat-go/plugins/wxweb/revoker"
 	"github.com/songtianyi/wechat-go/plugins/wxweb/switcher"
 	"github.com/songtianyi/wechat-go/wxweb"
+	"time"
 )
 
 func main() {
@@ -27,12 +30,15 @@ func main() {
 	cleaner.Register(session)
 	laosj.Register(session)
 	demo.Register(session)
+	joker.Register(session)
+	revoker.Register(session)
 
 	// enable plugin
 	session.HandlerRegister.EnableByName("switcher")
 	session.HandlerRegister.EnableByName("faceplusplus")
 	session.HandlerRegister.EnableByName("cleaner")
 	session.HandlerRegister.EnableByName("laosj")
+	session.HandlerRegister.EnableByName("joker")
 
 	// disable by type example
 	//if err := session.HandlerRegister.EnableByType(wxweb.MSG_TEXT); err != nil {
@@ -40,13 +46,22 @@ func main() {
 	//}
 
 	for {
-		// watch session
-		if err := session.LoginAndServe(); err != nil {
+		if err := session.LoginAndServe(false); err != nil {
 			logs.Error("session exit, %s", err)
+			for i := 0; i < 3; i++ {
+				logs.Info("trying re-login with cache")
+				if err := session.LoginAndServe(true); err != nil {
+					logs.Error("re-login error, %s", err)
+				}
+				time.Sleep(3 * time.Second)
+			}
 			if session, err = wxweb.CreateSession(nil, session.HandlerRegister, wxweb.TERMINAL_MODE); err != nil {
 				logs.Error("create new sesion failed, %s", err)
 				break
 			}
+		} else {
+			logs.Info("closed by user")
+			break
 		}
 	}
 }

@@ -4,3 +4,5 @@ qrcode.jpg
 logic/logic
 web/web
 demo/demo
+.idea
+node_modules

@@ -91,9 +91,9 @@ _Response_
 
 | /disable| 关闭某个插件|
 |------| ------ |
-| **HEADER** | header必填项 |
+| **HEADER** ||
 |||
-| **PARAMS**| url params|
+| **PARAMS**||
 |uuid|该session的uuid|
 |name|插件名 eg. gifer|
 

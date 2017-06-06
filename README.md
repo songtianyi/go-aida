@@ -5,8 +5,9 @@ go-aida是[wechat-go](http://github.com/songtianyi/wechat-go)的示例项目，�
 domain http://your.domain:8080
 
 #### /qrcode
+
 | 描述 | 获取微信登录二维码 |
-|------| ------ | ------ |
+|------| ------ |
 | header | header必填项 |
 |------| ------ |
 | param | url params|

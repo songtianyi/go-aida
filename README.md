@@ -7,6 +7,7 @@ mkdir -p $GOPATH/src/golang.org/x
 cd $GOPATH/src/golang.org/x
 git clone https://github.com/golang/net.git
 
+cd $GOPATH/src/github.com/songtianyi/
 git clone https://github.com/songtianyi/go-aida
 
 cd go-aida/restful
@@ -34,7 +35,7 @@ GET /qrcode
 _Response_
 ```
 200 OK
-binary body
+8c30a4e9-e949-4d10-b6d6-ef7b60e3af88
 ```
 
 #### /status
@@ -43,11 +44,11 @@ binary body
 | **HEADER** ||
 |||
 | **PARAMS**||
-|||
+|uuid|该session的uuid|
 
 _Request_
 ```
-GET /status
+GET /status?uuid=8c30a4e9-e949-4d10-b6d6-ef7b60e3af88
 ```
 _Response_
 ```
@@ -69,11 +70,12 @@ _Response_
 | **HEADER** ||
 |||
 | **PARAMS**||
+|uuid|该session的uuid|
 |name|插件名 eg. gifer|
 
 _Request_
 ```
-PATCH /enable?name=gifer
+PATCH /enable?uuid=8c30a4e9-e949-4d10-b6d6-ef7b60e3af88&name=gifer
 ```
 
 _Response_
@@ -88,12 +90,13 @@ _Response_
 | **HEADER** | header必填项 |
 |||
 | **PARAMS**| url params|
+|uuid|该session的uuid|
 |name|插件名 eg. gifer|
 
 
 _Request_
 ```
-PATCH /disable?name=gifer
+PATCH /disable?uuid=8c30a4e9-e949-4d10-b6d6-ef7b60e3af88&name=gifer
 ```
 _Response_
 ```

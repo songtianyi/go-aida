@@ -8,9 +8,9 @@ domain http://your.domain:8080
 
 | 描述 | 获取微信登录二维码 |
 |------| ------ |
-| *HEADER* | header必填项 |
+| **HEADER** | header必填项 |
 |||
-| *PARAMS *| url params|
+| **PARAMS**| url params|
 |||
 
 

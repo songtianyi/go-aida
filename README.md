@@ -6,7 +6,7 @@ domain http://your.domain:8080
 
 #### /qrcode
 
-| 描述 | 获取微信登录二维码 |
+| /qrcode | 获取微信登录二维码 |
 |------| ------ |
 | **HEADER** | header必填项 |
 |||

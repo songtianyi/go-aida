@@ -15,6 +15,7 @@ GET /qrcode
 ```
 _Response_
 ```
+200 OK
 binary body
 ```
 
@@ -22,18 +23,53 @@ binary body
 ||||
 |------| ------ | ------ |
 | 描述 | 获取登录状态|
+
 _Request_
 ```
 GET /status
 ```
 _Response_
 ```
+200 OK
 {
-    "login": true,
-    "plugins": {
-        "laosj": true,
+	"login": true,
+	"plugins": {
+		"laosj": true,
 		"gifer": false
     },
-	"startTime": 1496749513
+	"startTime": 1496749513,
 }
 ```
+
+#### /enable
+||||
+|------| ------ | ------ |
+| 描述 | 开启某个插件|
+| name | 插件名 | eg. gifer|
+
+_Request_
+```
+PATCH /enable?name=gifer
+```
+
+_Response_
+```
+200 OK
+```
+
+#### /disable
+||||
+|------| ------ | ------ |
+| 描述 | 关闭某个插件|
+| name | 插件名 | eg. gifer|
+
+_Request_
+```
+PATCH /disable?name=gifer
+```
+_Response_
+```
+200 OK
+```
+
+

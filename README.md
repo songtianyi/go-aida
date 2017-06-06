@@ -25,9 +25,12 @@ binary body
 ```
 
 #### /status
-||||
-|------| ------ | ------ |
-| 描述 | 获取登录状态|
+| /status| 获取登录状态|
+|------| ------ |
+| **HEADER** | header必填项 |
+|||
+| **PARAMS**| url params|
+|||
 
 _Request_
 ```
@@ -41,16 +44,19 @@ _Response_
 	"plugins": {
 		"laosj": true,
 		"gifer": false
-    },
+	},
 	"startTime": 1496749513,
 }
 ```
 
 #### /enable
-||||
-|------| ------ | ------ |
-| 描述 | 开启某个插件|
-| name | 插件名 | eg. gifer|
+
+| /enable| 开启某个插件|
+|------| ------ |
+| **HEADER** | header必填项 |
+|||
+| **PARAMS**| url params|
+|name|插件名 eg. gifer|
 
 _Request_
 ```
@@ -63,10 +69,14 @@ _Response_
 ```
 
 #### /disable
-||||
-|------| ------ | ------ |
-| 描述 | 关闭某个插件|
-| name | 插件名 | eg. gifer|
+
+| /disable| 关闭某个插件|
+|------| ------ |
+| **HEADER** | header必填项 |
+|||
+| **PARAMS**| url params|
+|name|插件名 eg. gifer|
+
 
 _Request_
 ```
@@ -76,5 +86,3 @@ _Response_
 ```
 200 OK
 ```
-
-

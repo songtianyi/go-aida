@@ -2,7 +2,18 @@
 go-aida是[wechat-go](http://github.com/songtianyi/wechat-go)的示例项目，包含Restful API和web页面两部分，web页面可以方便终端用户使用并管理wechat-go默认插件或第三方插件能，API用来和wechat-go交互。
 
 ## 获取代码并运行
+```
+mkdir -p $GOPATH/src/golang.org/x
+cd $GOPATH/src/golang.org/x
+git clone https://github.com/golang/net.git
 
+git clone https://github.com/songtianyi/go-aida
+
+cd go-aida/restful
+go get ./...
+go build .
+./restful
+```
 ## Restful API文档
 domain http://your.domain:8080
 

@@ -1,9 +1,14 @@
 package main
 import (
-	"gopkg.in/gin-gonic/gin.v1"
+	"github.com/gin-gonic/gin"
 	"github.com/songtianyi/go-aida/restful/logic"
 )
 
 func main() {
-	gin.Default()
+	router := gin.Default()
+
+	router.GET("/qrcode", logic.Qrcode)
+	router.GET("/status", logic.Status)
+
+	router.Run();
 }

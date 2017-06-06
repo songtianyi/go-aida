@@ -1,5 +1,5 @@
 # go-aida
-go-aida是[wechat-go](http://github.com/songtianyi/wechat-go)的示例项目，包含Restful API和web页面两部分，web页面可以方便终端用户使用并管理wechat-go默认插件或第三方插件能，API用来和wechat-go交互。
+go-aida是[wechat-go](http://github.com/songtianyi/wechat-go)的示例项目，包含Restful API和web页面两部分，web页面可以方便终端用户使用并管理wechat-go插件，API用来集成wechat-go和页面交互。
 
 ## 获取代码并运行
 ```

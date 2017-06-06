@@ -1,6 +1,8 @@
 # go-aida
 go-aida是[wechat-go](http://github.com/songtianyi/wechat-go)的示例项目，包含Restful API和web页面两部分，web页面可以方便终端用户使用并管理wechat-go默认插件或第三方插件能，API用来和wechat-go交互。
 
+## 获取代码并运行
+
 ## Restful API文档
 domain http://your.domain:8080
 
@@ -8,9 +10,9 @@ domain http://your.domain:8080
 
 | /qrcode | 获取微信登录二维码 |
 |------| ------ |
-| **HEADER** | header必填项 |
+| **HEADER** ||
 |||
-| **PARAMS**| url params|
+| **PARAMS**||
 |||
 
 
@@ -27,9 +29,9 @@ binary body
 #### /status
 | /status| 获取登录状态|
 |------| ------ |
-| **HEADER** | header必填项 |
+| **HEADER** ||
 |||
-| **PARAMS**| url params|
+| **PARAMS**||
 |||
 
 _Request_
@@ -53,9 +55,9 @@ _Response_
 
 | /enable| 开启某个插件|
 |------| ------ |
-| **HEADER** | header必填项 |
+| **HEADER** ||
 |||
-| **PARAMS**| url params|
+| **PARAMS**||
 |name|插件名 eg. gifer|
 
 _Request_

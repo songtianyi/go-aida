@@ -7,7 +7,7 @@ import (
 func main() {
 	router := gin.Default()
 
-	router.GET("/qrcode", logic.Qrcode)
+	router.GET("/create", logic.Create)
 	router.GET("/status", logic.Status)
 
 	router.Run();

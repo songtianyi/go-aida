@@ -7,7 +7,7 @@ import (
 	"github.com/songtianyi/rrframework/logs"
 	"time"
 )
-func Qrcode(c *gin.Context) {
+func Create(c *gin.Context) {
 
 	// create session
 	session, err := wxweb.CreateSession(nil, nil, wxweb.WEB_MODE)

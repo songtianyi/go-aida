@@ -18,9 +18,9 @@ go build .
 ## Restful API文档
 domain http://your.domain:8080
 
-#### /qrcode
+#### /create
 
-| /qrcode | 获取微信登录二维码 |
+| /create| 创建一个机器人实例|
 |------| ------ |
 | **HEADER** ||
 |||
@@ -30,7 +30,7 @@ domain http://your.domain:8080
 
 _Request_
 ```
-GET /qrcode
+GET /create
 ```
 _Response_
 ```
@@ -54,13 +54,18 @@ _Response_
 ```
 200 OK
 {
-	"login": true,
+	"status": "CREATED",
+	"qrcode": "../public/wd_vvLuDWQ==.jpg",
 	"plugins": {
 		"laosj": true,
 		"gifer": false
 	},
 	"startTime": 1496749513,
 }
+|status|意义|
+|------| ------ |
+|CREATED|等待用户扫码，此时已拿到二维码|
+
 ```
 
 #### /enable

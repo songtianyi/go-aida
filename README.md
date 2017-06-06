@@ -55,7 +55,7 @@ _Response_
 200 OK
 {
 	"status": "CREATED",
-	"qrcode": "../public/wd_vvLuDWQ==.jpg",
+	"qrcode": "../public/qrcode/wd_vvLuDWQ==.jpg",
 	"plugins": {
 		"laosj": true,
 		"gifer": false

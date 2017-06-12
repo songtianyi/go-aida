@@ -1,7 +1,7 @@
 # go-aida
 go-aida是[wechat-go](http://github.com/songtianyi/wechat-go)的示例项目，包含Restful API和web页面两部分.
 
-## 和wechat-go的区别
+#### 区别
 * go-aida是拥有扫码页面的功能性机器人
 * wechat-go实现了微信的API, 并提供了易用的消息框架, 但并不是可运行程序
 * 只需少量代码即可基于wechat-go创建一个属于自己的个性化机器人，对于更复杂的需求(扫码页面等)可以使用go-aida

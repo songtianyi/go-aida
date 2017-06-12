@@ -1,12 +1,14 @@
 package logic
+
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/songtianyi/wechat-go/wxweb"
-	"net/http"
 	"github.com/songtianyi/go-aida/restful/manager"
 	"github.com/songtianyi/rrframework/logs"
+	"github.com/songtianyi/wechat-go/wxweb"
+	"net/http"
 	"time"
 )
+
 func Create(c *gin.Context) {
 
 	// create session
@@ -18,7 +20,7 @@ func Create(c *gin.Context) {
 	}
 
 	LoadAllPlugins(session)
-	sessionId := manager.GlobalSessionManager.Add(session);
+	sessionId := manager.GlobalSessionManager.Add(session)
 
 	go func() {
 		for {
@@ -35,6 +37,7 @@ func Create(c *gin.Context) {
 					logs.Error("create new sesion failed, %s", err)
 					break
 				}
+				manager.GlobalSessionManager.Set(sessionId, session)
 			} else {
 				logs.Info("closed by user")
 				break

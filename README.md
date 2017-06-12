@@ -66,6 +66,7 @@ _Response_
 |status|意义|
 |------| ------ |
 |CREATED|等待用户扫码，此时已拿到二维码|
+|SERVING|扫码登录成功|
 
 #### /enable
 

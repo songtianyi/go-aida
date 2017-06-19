@@ -16,16 +16,23 @@ export default {
   data () {
     return {
       msg: 'Login',
-      QRSrc: 'https://o5omsejde.qnssl.com/demo/test1.jpg'
+      QRSrc: ''
     }
   },
   mounted () {
-    console.log('登陆页')
-//    this.$http.get().then(res => {
-//
-//    }, res => {
-//
-//    })
+    let _self = this
+    this.$http.get('http://localhost:8080/create').then(res => {
+      let body = res.body
+      console.log(body)
+      _self.$http.get('http://localhost:8080/status?uuid=' + body).then(res => {
+        _self.QRSrc = res.body.qrcode
+        console.log(_self)
+      }, res => {
+        console.log('sub error', res)
+      })
+    }, res => {
+      console.log('error', res)
+    })
   }
 }
 </script>

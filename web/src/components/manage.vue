@@ -2,7 +2,8 @@
   <div id="">
     <h1>{{msg}}</h1>
     <x-table>
-      <tr v-for="plugin in plugins">
+      <tr v-for="(plugin, index) in plugins" class="tr" :class="{'current': currentIndex === index}">
+        <td>{{'No.'+index}}</td>
         <td>{{plugin.name}}</td>
         <td>{{plugin.age}}</td>
       </tr>
@@ -23,7 +24,8 @@ export default {
       plugins: [
         {name: '1', age: '2'},
         {name: '2', age: '4'}
-      ]
+      ],
+      currentIndex: 1
     }
   },
   mounted () {

@@ -13,5 +13,10 @@ func main() {
 	router.PATCH("/enable", logic.Enable)
 	router.PATCH("/disable", logic.Disable)
 
+	router.Use(gin.HandlerFunc(func(c *gin.Context){
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Next()
+	}))
+
 	router.Run()
 }

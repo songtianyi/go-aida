@@ -114,3 +114,8 @@ _Response_
 ```
 200 OK
 ```
+
+## Demo
+部署服务端之后
+
+在浏览器中打开 `web/index.html`

@@ -1,6 +1,6 @@
 package logic
+
 import (
-	"github.com/songtianyi/wechat-go/wxweb"
 	"github.com/songtianyi/rrframework/logs"
 	"github.com/songtianyi/wechat-go/plugins/wxweb/faceplusplus"
 	"github.com/songtianyi/wechat-go/plugins/wxweb/forwarder"
@@ -12,6 +12,7 @@ import (
 	"github.com/songtianyi/wechat-go/plugins/wxweb/switcher"
 	"github.com/songtianyi/wechat-go/plugins/wxweb/system"
 	"github.com/songtianyi/wechat-go/plugins/wxweb/youdao"
+	"github.com/songtianyi/wechat-go/wxweb"
 )
 
 func LoadAllPlugins(session *wxweb.Session) {

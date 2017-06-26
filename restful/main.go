@@ -17,6 +17,8 @@ func main() {
 	router.GET("/status", logic.Status)
 	router.PATCH("/enable", logic.Enable)
 	router.PATCH("/disable", logic.Disable)
+	router.OPTIONS("/enable", logic.Enable)
+	router.OPTIONS("/disable", logic.Disable)
 
 	router.Run()
 }

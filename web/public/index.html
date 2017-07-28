@@ -34,7 +34,7 @@
                     localStorage['uuid'] = data;
                     var timeLoop = setInterval(function(){
                         _self.getQR(data, timeLoop);
-                    }, 500)
+                    }, 1000)
                 }, function(res){
                     console.log('get code error', res)
                 })

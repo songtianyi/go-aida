@@ -5,4 +5,5 @@ web/web
 demo/demo
 .idea
 node_modules
+web/public/qrcode/*.jpg
 public

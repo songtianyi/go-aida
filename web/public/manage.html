@@ -11,8 +11,9 @@
 <body>
 <div id="manage">
     <h1>{{msg}}</h1>
+	<p>微信群需要加入通讯录，插件才会对群也生效</p>
     <div>
-        <mt-cell v-for="(plugin, index) in plugins" :key="index" :title="plugin.name">
+        <mt-cell v-for="(plugin, index) in plugins" :key="index" :title="plugin.name + ' ' + pluginDescriptionMap[plugin.name]">
             <mt-switch v-model="plugin.enabled" @change="changeEnable(plugin.name, plugin.enabled, index)"></mt-switch>
         </mt-cell>
     </div>
@@ -25,7 +26,18 @@
             msg: '插件管理',
             plugins: [],
             currentIndex: 1,
-            uuid: localStorage.uuid || null
+            uuid: localStorage.uuid || null,
+			pluginDescriptionMap: {
+				"faceplusplus": "对收到的图片做面部识别，返回性别和年龄",
+				"gifer": "以收到的文字消息为关键字做gif搜索，返回gif图",
+				"img-replier": "对收到的图片消息，做自动应答",
+				"text-replier": "对收到的文字消息，做自动应答",
+				"laosj": "随机获取一张美女图片, 在聊天窗口输入 美女",
+				"joker": "获取一则笑话, 在聊天窗口输入 笑话",
+				"revoker": "3s后自动撤回手机端所发的文本消息",
+				"youdao": "中英互译插件",
+				"verify": "自动接受好友请求"
+			},
         },
         mounted: function(){
             this.getPlugins();
@@ -36,7 +48,7 @@
                 if (v) {
                     console.log(v)
                     axios({
-                        method: 'PATCH',
+                        method: 'PUT',
                         url: 'http://localhost:8080/enable',
                         params: {
                             uuid: _self.uuid,
@@ -49,7 +61,7 @@
                     })
                 } else {
                     axios({
-                        method: 'PATCH',
+                        method: 'PUT',
                         url: 'http://localhost:8080/disable',
                         params: {
                             uuid: _self.uuid,

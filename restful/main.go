@@ -11,6 +11,7 @@ func main() {
 
 	router.Use(gin.HandlerFunc(func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(http.StatusOK)
 			return
@@ -20,8 +21,8 @@ func main() {
 
 	router.GET("/create", logic.Create)
 	router.GET("/status", logic.Status)
-	router.PATCH("/enable", logic.Enable)
-	router.PATCH("/disable", logic.Disable)
+	router.PUT("/enable", logic.Enable)
+	router.PUT("/disable", logic.Disable)
 
 	router.Run()
 }

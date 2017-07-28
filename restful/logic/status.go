@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/songtianyi/go-aida/restful/manager"
 	"net/http"
+	"strings"
 )
 
 type Plugin struct {
@@ -22,7 +23,7 @@ func Status(c *gin.Context) {
 	if session.Cookies == nil {
 		c.JSON(200, gin.H{
 			"status":    "CREATED",
-			"qrcode":    session.QrcodePath,
+			"qrcode":    strings.TrimPrefix(session.QrcodePath, "../web/public/"),
 			"startTime": session.CreateTime,
 		})
 		return

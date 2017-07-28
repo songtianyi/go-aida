@@ -8,7 +8,7 @@ go-aida是[wechat-go](http://github.com/songtianyi/wechat-go)的示例项目，�
 * wechat-go专注在API的稳定性/框架的易用性/通用插件这三方面
 * go-aida专注在机器人的个性化定制上
 
-## 获取代码并运行
+## 获取代码
 ```
 mkdir -p $GOPATH/src/golang.org/x
 cd $GOPATH/src/golang.org/x
@@ -20,7 +20,16 @@ git clone https://github.com/songtianyi/go-aida
 cd go-aida/restful
 go get ./...
 go build .
+```
+## 运行api server
+```
 ./restful
+```
+## 运行web页面
+```
+cd ../web
+npm install
+node index.js
 ```
 ## Restful API文档
 domain http://your.domain:8080
@@ -87,7 +96,7 @@ _Response_
 
 _Request_
 ```
-PATCH /enable?uuid=8c30a4e9-e949-4d10-b6d6-ef7b60e3af88&name=gifer
+PUT /enable?uuid=8c30a4e9-e949-4d10-b6d6-ef7b60e3af88&name=gifer
 ```
 
 _Response_
@@ -108,7 +117,7 @@ _Response_
 
 _Request_
 ```
-PATCH /disable?uuid=8c30a4e9-e949-4d10-b6d6-ef7b60e3af88&name=gifer
+PUT /disable?uuid=8c30a4e9-e949-4d10-b6d6-ef7b60e3af88&name=gifer
 ```
 _Response_
 ```

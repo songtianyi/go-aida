@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+    <title>go-aida-vue</title>
+    <link rel="stylesheet" href="https://unpkg.com/mint-ui/lib/style.css">
+    <script src="libs/vue/vue.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+<div id="manage">
+    <h1>{{msg}}</h1>
+    <div>
+        <mt-cell v-for="(plugin, index) in plugins" :key="index" :title="plugin.name">
+            <mt-switch v-model="plugin.enabled" @change="changeEnable(plugin.name, plugin.enabled, index)"></mt-switch>
+        </mt-cell>
+    </div>
+</div>
+<script src="https://unpkg.com/mint-ui/lib/index.js"></script>
+<script>
+    new Vue({
+        el: '#manage',
+        data: {
+            msg: '插件管理',
+            plugins: [],
+            currentIndex: 1,
+            uuid: localStorage.uuid || null
+        },
+        mounted: function(){
+            this.getPlugins();
+        },
+        methods: {
+            changeEnable (name, v, index) {
+                var _self = this;
+                if (v) {
+                    console.log(v)
+                    axios({
+                        method: 'PATCH',
+                        url: 'http://localhost:8080/enable',
+                        params: {
+                            uuid: _self.uuid,
+                            name: name
+                        }
+                    }).then(function(res){
+                        console.log(res)
+                    }, function(res){
+                        console.log('enable error', res)
+                    })
+                } else {
+                    axios({
+                        method: 'PATCH',
+                        url: 'http://localhost:8080/disable',
+                        params: {
+                            uuid: _self.uuid,
+                            name: name
+                        }
+                    }).then(function(res){
+                        console.log(res)
+                    }, function(res){
+                        console.log('enable error', res)
+                    })
+                }
+            },
+            getPlugins () {
+                var _self = this;
+                axios({
+                    method: 'get',
+                    url: 'http://localhost:8080/status',
+                    params: {
+                        uuid: _self.uuid
+                    }
+                }).then(function(res){
+                    _self.plugins = res.data.plugins
+                }, function(res){
+                    location.href = 'index.html';
+                    console.log('get error', res)
+                })
+            }
+        }
+    })
+</script>
+</body>
+</html>

@@ -1,1 +1,65 @@
-<!DOCTYPE html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,user-scalable=0"><title>go-aida-vue</title><link href=static/css/app.ade7b8458481df6c1493291feaf350cb.css rel=stylesheet></head><body><div id=app-box></div><script type=text/javascript src=static/js/manifest.edbae2d5751facc7bf36.js></script><script type=text/javascript src=static/js/vendor.46041fdaa41bed4ff8cb.js></script><script type=text/javascript src=static/js/app.b99a021009d81f3e687f.js></script></body></html>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+    <title>go-aida-vue</title>
+    <script src="libs/vue/vue.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+<div id="login">
+    <h1>{{msg}}</h1>
+    <img :src="QRSrc" class="ximg-demo" alt="">
+</div>
+
+<script>
+    new Vue({
+        el: '#login',
+        data: {
+            msg: '扫码登陆',
+            QRSrc: ''
+        },
+        created: function(){
+            this.getCode();
+        },
+        methods: {
+            getCode: function(){
+                var _self = this;
+                axios({
+                    method: 'get',
+                    url: 'http://localhost:8080/create'
+                }).then(function(res){
+                    var data = res.data;
+                    localStorage['uuid'] = data;
+                    var timeLoop = setInterval(function(){
+                        _self.getQR(data, timeLoop);
+                    }, 500)
+                }, function(res){
+                    console.log('get code error', res)
+                })
+            },
+            getQR: function(code, timeLoop){
+                var _self = this;
+                axios({
+                    method: 'get',
+                    url: 'http://localhost:8080/status',
+                    params: {
+                        uuid: code
+                    }
+                }).then(function(res){
+                    if(res.data.status === 'SERVING'){
+                        clearInterval(timeLoop);
+                        location.href = 'manage.html';
+                        return;
+                    }
+                    _self.QRSrc = res.data.qrcode;
+                }, function(res){
+                    _self.getCode();
+                })
+            }
+        }
+    })
+</script>
+</body>
+</html>

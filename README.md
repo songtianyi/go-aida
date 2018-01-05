@@ -1,3 +1,5 @@
+# DEPRECATED
+不再更新，将被重构并集成到 [wechat-go](http://github.com/songtianyi/wechat-go)
 # go-aida
 go-aida是[wechat-go](http://github.com/songtianyi/wechat-go)的示例项目，包含Restful API和web页面两部分.
 
